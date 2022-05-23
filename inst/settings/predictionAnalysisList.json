@@ -19,7 +19,7 @@
     "riskWindowEnd": 0,
     "firstExposureOnly": true
   }],
-  "organizationName": "OHDSI",
+  "organizationName": "ABMI",
   "targetIds": [
     1739,
     1740,
@@ -8850,5 +8850,5 @@
   }],
   "conceptSets": [],
   "id": 156,
-  "packageName": "MphSafetyPredic"
+  "packageName": "MphSafetyPrediction"
 }

@@ -1,6 +1,6 @@
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
-# This file is part of MphSafetyPredic
+# This file is part of MphSafetyPrediction
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,11 +20,12 @@
                            cohortDatabaseSchema,
                            cohortTable,
                            oracleTempSchema,
-                           outputFolder) {
+                           outputFolder,
+                           cohortVariableSetting = NULL) {
   
   # Create study cohort table structure:
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "CreateCohortTable.sql",
-                                           packageName = "MphSafetyPredic",
+                                           packageName = "MphSafetyPrediction",
                                            dbms = attr(connection, "dbms"),
                                            oracleTempSchema = oracleTempSchema,
                                            cohort_database_schema = cohortDatabaseSchema,
@@ -34,12 +35,12 @@
   
   
   # Instantiate cohorts:
-  pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "MphSafetyPredic")
+  pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "MphSafetyPrediction")
   cohortsToCreate <- utils::read.csv(pathToCsv)
   for (i in 1:nrow(cohortsToCreate)) {
     writeLines(paste("Creating cohort:", cohortsToCreate$name[i]))
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename = paste0(cohortsToCreate$name[i], ".sql"),
-                                             packageName = "MphSafetyPredic",
+                                             packageName = "MphSafetyPrediction",
                                              dbms = attr(connection, "dbms"),
                                              oracleTempSchema = oracleTempSchema,
                                              cdm_database_schema = cdmDatabaseSchema,
@@ -50,4 +51,38 @@
                                              target_cohort_id = cohortsToCreate$cohortId[i])
     DatabaseConnector::executeSql(connection, sql)
   }
+  
+  if(!is.null(cohortVariableSetting)){
+    # if custom cohort covaraites set:
+    pathToCustom <- system.file("settings", cohortVariableSetting, package = "MphSafetyPrediction")
+    if(!file.exists(pathToCustom)){
+      stop('cohortVariableSetting does not exist in package')
+    }
+    cohortVarsToCreate <- utils::read.csv(pathToCustom)
+    
+    if(sum(colnames(cohortVarsToCreate)%in%c('atlasId', 'cohortName', 'startDay', 'endDay'))!=4){
+      stop('Issue with cohortVariableSetting - make sure it is NULL or a setting')  
+    }
+    
+    cohortVarsToCreate <- unique(cohortVarsToCreate[,c('atlasId', 'cohortName')])
+    for (i in 1:nrow(cohortVarsToCreate)) {
+      writeLines(paste("Creating cohort:", cohortVarsToCreate$cohortName[i]))
+      sql <- SqlRender::loadRenderTranslateSql(sqlFilename = paste0(cohortVarsToCreate$cohortName[i], ".sql"),
+                                               packageName = "MphSafetyPrediction",
+                                               dbms = attr(connection, "dbms"),
+                                               oracleTempSchema = oracleTempSchema,
+                                               cdm_database_schema = cdmDatabaseSchema,
+                                               vocabulary_database_schema = vocabularyDatabaseSchema,
+                                               
+                                               target_database_schema = cohortDatabaseSchema,
+                                               target_cohort_table = cohortTable,
+                                               target_cohort_id = cohortVarsToCreate$atlasId[i])
+      DatabaseConnector::executeSql(connection, sql)
+    }
+  
+  
+  }
+  
+  
+  
 }

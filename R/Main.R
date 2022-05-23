@@ -1,6 +1,6 @@
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
-# This file is part of MphSafetyPredic
+# This file is part of MphSafetyPrediction
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,48 +17,29 @@
 #' Execute the Study
 #'
 #' @details
-#' This function executes the MphSafetyPredic Study.
+#' This function executes the MphSafetyPrediction Study.
 #' 
-#' @param connectionDetails    An object of type \code{connectionDetails} as created using the
-#'                             \code{\link[DatabaseConnector]{createConnectionDetails}} function in the
-#'                             DatabaseConnector package.
-#' @param cdmDatabaseSchema    Schema name where your patient-level data in OMOP CDM format resides.
-#'                             Note that for SQL Server, this should include both the database and
-#'                             schema name, for example 'cdm_data.dbo'.
-#' @param cdmDatabaseName      Shareable name of the database 
-#' @param cohortDatabaseSchema Schema name where intermediate data can be stored. You will need to have
-#'                             write priviliges in this schema. Note that for SQL Server, this should
-#'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param cohortTable          The name of the table that will be created in the work database schema.
-#'                             This table will hold the target population cohorts used in this
-#'                             study.
-#' @param oracleTempSchema     Should be used in Oracle to specify a schema where the user has write
-#'                             priviliges for storing temporary tables.
+#' @param databaseDetails      Database details created using \code{PatientLevelPrediction::createDatabaseDetails()} 
 #' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
 #'                             (/). Do not use a folder on a network drive since this greatly impacts
 #'                             performance.
 #' @param createProtocol       Creates a protocol based on the analyses specification                             
 #' @param createCohorts        Create the cohortTable table with the target population and outcome cohorts?
+#' @param runDiagnostic        Runs a diagnostic of the T, O and tar settings for the cdmDatabaseSchema - can be used to check whether to change 
+#'                             settings or whether the prediction may not do well.  
+#' @param viewDiagnostic       Opens a shiny app with the diagnostic results (run after runDiagnostic completes)                              
 #' @param runAnalyses          Run the model development
-#' @param createResultsDoc     Create a document containing the results of each prediction
 #' @param createValidationPackage  Create a package for sharing the models 
+#' @param useHydra             Whether to use Hydra to create the validation package (requires hydra to be installed) or download the master version of the skeleton (requires internet access)
+#' @param skeletonVersion      The version of the validation skeleton to use
 #' @param analysesToValidate   A vector of analysis ids (e.g., c(1,3,10)) specifying which analysese to export into validation package. Default is NULL and all are exported.
 #' @param packageResults       Should results be packaged for later sharing?     
 #' @param minCellCount         The minimum number of subjects contributing to a count before it can be included 
 #'                             in packaged results.
-#' @param createShiny          Create a shiny app with the results
-#' @param createJournalDocument Do you want to create a template journal document populated with results?
-#' @param analysisIdDocument   Which Analysis_id do you want to create the document for?
-#' @param verbosity            Sets the level of the verbosity. If the log level is at or higher in priority than the logger threshold, a message will print. The levels are:
-#'                                         \itemize{
-#'                                         \item{DEBUG}{Highest verbosity showing all debug statements}
-#'                                         \item{TRACE}{Showing information about start and end of steps}
-#'                                         \item{INFO}{Show informative information (Default)}
-#'                                         \item{WARN}{Show warning messages}
-#'                                         \item{ERROR}{Show error messages}
-#'                                         \item{FATAL}{Be silent except for fatal errors}
-#'                                         }                              
-#' @param cdmVersion           The version of the common data model                             
+#' @param viewShiny            View a shiny app with the results
+#' @param onlyFetchData        Only fetch data for the analyses without fitting models. Setting this flag will overwrite your input provided to the runAnalyses and createCohorts parameters.
+#' @param sampleSize           The number of patients in the target cohort to sample (if NULL uses all patients)
+#' @param logSettings           The log setting \code{PatientLevelPrediction::createLogSettings()}                            
 #'
 #' @examples
 #' \dontrun{
@@ -66,143 +47,251 @@
 #'                                              user = "joe",
 #'                                              password = "secret",
 #'                                              server = "myserver")
+#'                                              
+#'  databaseDetails <- PatientLevelPrediction::createDatabaseDetails(
+#'  connectionDetails = connectionDetails,
+#'  cdmDatabaseSchema = cdmDatabaseSchema,
+#'  cdmDatabaseName = cdmDatabaseName,
+#'  tempEmulationSchema = tempEmulationSchema,
+#'  cohortDatabaseSchema = cohortDatabaseSchema,
+#'  cohortTable = cohortTable,
+#'  outcomeDatabaseSchema = cohortDatabaseSchema,
+#'  outcomeTable = cohortTable,
+#'  cdmVersion = cdmVersion
+#'  )  
+#'  
+#'  logSettings <- PatientLevelPrediction::createLogSettings(
+#'  verbosity = "INFO",
+#'  timeStamp = T,
+#'  logName = 'skeletonPlp'
+#'  )                                          
 #'
-#' execute(connectionDetails,
-#'         cdmDatabaseSchema = "cdm_data",
-#'         cdmDatabaseName = 'shareable name of the database'
-#'         cohortDatabaseSchema = "study_results",
-#'         cohortTable = "cohort",
-#'         oracleTempSchema = NULL,
+#' execute(databaseDetails = databaseDetails,
 #'         outputFolder = "c:/temp/study_results", 
 #'         createProtocol = T,
 #'         createCohorts = T,
+#'         runDiagnostic = F,
+#'         viewDiagnostic = F,
 #'         runAnalyses = T,
-#'         createResultsDoc = T,
 #'         createValidationPackage = T,
+#'         useHydra = F,
+#'         skeletonVersion = 'v1.0.1',
 #'         packageResults = F,
 #'         minCellCount = 5,
-#'         createShiny = F,
-#'         verbosity = "INFO",
-#'         cdmVersion = 5)
+#'         viewShiny = F,
+#'         sampleSize = 10000,
+#'         logSettings = logSettings
+#'         )
 #' }
 #'
 #' @export
-execute <- function(connectionDetails,
-                    cdmDatabaseSchema,
-                    cdmDatabaseName = 'friendly database name',
-                    cohortDatabaseSchema = cdmDatabaseSchema,
-                    cohortTable = "cohort",
-                    oracleTempSchema = cohortDatabaseSchema,
-                    outputFolder,
-                    createProtocol = F,
-                    createCohorts = F,
-                    runAnalyses = F,
-                    createResultsDoc = F,
-                    createValidationPackage = F,
-                    analysesToValidate = NULL,
-                    packageResults = F,
-                    minCellCount= 5,
-                    createShiny = F,
-                    createJournalDocument = F,
-                    analysisIdDocument = 1,
-                    verbosity = "INFO",
-                    cdmVersion = 5) {
+execute <- function(
+  databaseDetails,
+  outputFolder,
+  createProtocol = F,
+  createCohorts = F,
+  runDiagnostic = F,
+  viewDiagnostic = F,
+  runAnalyses = F,
+  createValidationPackage = F,
+  useHydra = F,
+  skeletonVersion = 'v0.0.1',
+  analysesToValidate = NULL,
+  packageResults = F,
+  minCellCount= 5,
+  viewShiny = F,
+  onlyFetchData = F,
+  sampleSize = NULL,
+  logSettings
+) {
+  
   if (!file.exists(outputFolder))
     dir.create(outputFolder, recursive = TRUE)
   
   ParallelLogger::addDefaultFileLogger(file.path(outputFolder, "log.txt"))
   
   if(createProtocol){
-    createPlpProtocol(outputFolder)
+    tryCatch(
+      {createPlpProtocol(predictionAnalysisListFile = NULL, outputLocation = outputFolder)},
+      error = {function(e) ParallelLogger::logError(e);}
+    )
+    
   }
   
   if (createCohorts) {
     ParallelLogger::logInfo("Creating cohorts")
-    createCohorts(connectionDetails = connectionDetails,
-                  cdmDatabaseSchema = cdmDatabaseSchema,
-                  cohortDatabaseSchema = cohortDatabaseSchema,
-                  cohortTable = cohortTable,
-                  oracleTempSchema = oracleTempSchema,
-                  outputFolder = outputFolder)
+    createCohorts(
+      databaseDetails = databaseDetails,
+      outputFolder = outputFolder
+    )
   }
   
-  if(runAnalyses){
-    ParallelLogger::logInfo("Running predictions")
+  if(runAnalyses || onlyFetchData || runDiagnostic){
+    if(onlyFetchData || (runDiagnostic && !runAnalyses)) {
+      ParallelLogger::logInfo("Only fetching data and not running predictions")
+    } else {
+      ParallelLogger::logInfo("Running predictions")
+    }
+    
     predictionAnalysisListFile <- system.file("settings",
                                               "predictionAnalysisList.json",
-                                              package = "MphSafetyPredic")
-    predictionAnalysisList <- PatientLevelPrediction::loadPredictionAnalysisList(predictionAnalysisListFile)
-    predictionAnalysisList$connectionDetails = connectionDetails
-    predictionAnalysisList$cdmDatabaseSchema = cdmDatabaseSchema
-    predictionAnalysisList$cdmDatabaseName = cdmDatabaseName
-    predictionAnalysisList$oracleTempSchema = oracleTempSchema
-    predictionAnalysisList$cohortDatabaseSchema = cohortDatabaseSchema
-    predictionAnalysisList$cohortTable = cohortTable
-    predictionAnalysisList$outcomeDatabaseSchema = cohortDatabaseSchema
-    predictionAnalysisList$outcomeTable = cohortTable
-    predictionAnalysisList$cdmVersion = cdmVersion
-    predictionAnalysisList$outputFolder = outputFolder
-    predictionAnalysisList$verbosity = verbosity
+                                              package = "MphSafetyPrediction")
     
-    result <- do.call(PatientLevelPrediction::runPlpAnalyses, predictionAnalysisList)
+    predictionAnalysisList <- tryCatch(
+      {PatientLevelPrediction::loadPlpAnalysesJson(file.path(predictionAnalysisListFile))},
+      error= function(cond) {
+        ParallelLogger::logInfo('Issue when loading json file...');
+        ParallelLogger::logError(cond);
+        return(NULL)
+      })
+    
+    if(predictionAnalysisList$skeletonVersion %in% c('v0.0.1' ,'v0.0.6')) predictionAnalysisList <- NULL
+    
+    # make backwards compatible
+    if(is.null(predictionAnalysisList)){
+      predictionAnalysisList <- backwards(predictionAnalysisListFile)
+    }
+    
+    # add sample settings
+    if(!is.null(sampleSize)){
+      ParallelLogger::logInfo('Adding sample settings')
+      for(i in 1:length(predictionAnalysisList$analyses)){
+        predictionAnalysisList$analyses[[i]]$restrictPlpDataSettings$sampleSize <- sampleSize
+      }
+    }
+    
+    # add code to add database settings for covariates...
+    #[TODO]
+    for(i in 1:length(predictionAnalysisList$analyses)){
+      ParallelLogger::logInfo('Updating as cohort covariate settings is being used')
+      predictionAnalysisList$analyses[[i]]$covariateSettings <- addCohortSettings(
+        covariateSettings = predictionAnalysisList$analyses[[i]]$covariateSettings, 
+        cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema, 
+        cohortTable = databaseDetails$cohortTable
+      )
+    }
+    
+    result <- do.call(
+      PatientLevelPrediction::runMultiplePlp, 
+      
+      list(
+        databaseDetails = databaseDetails,
+        modelDesignList = predictionAnalysisList$analyses,
+        onlyFetchData =  onlyFetchData || (runDiagnostic && !runAnalyses),
+        splitSettings = predictionAnalysisList$splitSettings,
+        cohortDefinitions = predictionAnalysisList$cohortDefinitions,
+        logSettings = logSettings,
+        saveDirectory = outputFolder
+      )
+    )
   }
   
+  if(runDiagnostic){
+    ParallelLogger::logInfo(paste0("Creating diagnostic results for ",databaseDetails$cdmDatabaseName))
+    
+    settings <- utils::read.csv(file.path(outputFolder, 'settings.csv'))
+    
+    settings <- settings %>% 
+      dplyr::select(.data$targetName, .data$outcomeName, .data$dataLocation) %>% 
+      dplyr::mutate(target = paste0(.data$targetName, '-' , .data$dataLocation))
+    
+    length(unique(settings$target))
+    
+    # run diagnostic
+    for(i in 1:length(unique(settings$target))){
+      
+      setOfInt <- settings %>% dplyr::filter(.data$target  == unique(settings$target)[i])
+      
+      ParallelLogger::logInfo(paste0("Target Cohort: ", unique(setOfInt$targetName), ' generating'))
+      
+      diagnosticData <- PatientLevelPrediction::loadPlpData(file.path(outputFolder, setOfInt$dataLocation[1]))
+      diagnosticData$cohorts$cohortId <- i*100000+diagnosticData$cohorts$cohortId
+      
+      diag <- tryCatch(
+        {
+          PatientLevelPrediction::diagnostic( 
+            plpData = diagnosticData,
+            cdmDatabaseName = databaseDetails$cdmDatabaseName,
+            cohortName = unique(setOfInt$target), 
+            outcomeNames = unique(setOfInt$outcomeName), 
+            databaseDetails = NULL,
+            populationSettings = PatientLevelPrediction::createStudyPopulationSettings(
+              includeAllOutcomes = F, 
+              firstExposureOnly = F, 
+              washoutPeriod = 0, 
+              requireTimeAtRisk = F, 
+              removeSubjectsWithPriorOutcome = F, 
+              riskWindowStart = 0, 
+              riskWindowEnd = 9999
+            ),
+            outputFolder = file.path(outputFolder, 'diagnostics'), 
+            minCellCount = minCellCount
+          )
+        },
+        error = function(err) {
+          # error handler picks up where error was generated
+          ParallelLogger::logError(paste("Diagnostic error:  ",err))
+          return(NULL)
+          
+        }
+      )
+    }
+    
+    
+  }
+  
+  if(viewDiagnostic){
+    ParallelLogger::logInfo(paste0("Loading diagnostic shiny app"))
+    
+    checkDiagnosticResults <- dir.exists(file.path(outputFolder, 'diagnostics'))
+    checkShinyViewer <- dir.exists(system.file("shiny", "DiagnosticsExplorer", package = "PatientLevelPrediction"))
+    if(!checkDiagnosticResults){
+      warning('No diagnosstic results found, please execute with runDiagnostic first')
+    } else if(!checkShinyViewer){
+      warning('No DiagnosticsExplorer shiny app found in your PatientLevelPrediction library - try updating PatientLevelPrediction')
+    } else{
+      shinyDirectory <- system.file("shiny", "DiagnosticsExplorer", package = "PatientLevelPrediction")
+      shinySettings <- list(dataFolder = file.path(outputFolder, 'diagnostics'))
+      .GlobalEnv$shinySettings <- shinySettings
+      on.exit(rm(shinySettings, envir = .GlobalEnv))
+      shiny::runApp(shinyDirectory)
+    }
+    
+  }
+  
+  
   if (packageResults) {
+    ensure_installed("OhdsiSharing")
     ParallelLogger::logInfo("Packaging results")
     packageResults(outputFolder = outputFolder,
                    minCellCount = minCellCount)
   }
   
-  if(createResultsDoc){
-    createMultiPlpReport(analysisLocation=outputFolder,
-                         protocolLocation = file.path(outputFolder,'protocol.docx'),
-                         includeModels = F)
-  }
-  
   if(createValidationPackage){
-    predictionAnalysisListFile <- system.file("settings",
-                                              "predictionAnalysisList.json",
-                                              package = "MphSafetyPredic")
-    jsonSettings <-  tryCatch({Hydra::loadSpecifications(file=predictionAnalysisListFile)},
-                              error=function(cond) {
-                                stop('Issue with json file...')
-                              })
-    pn <- jsonlite::fromJSON(jsonSettings)$packageName
-    jsonSettings <- gsub(pn,paste0(pn,'Validation'),jsonSettings)
-    jsonSettings <- gsub('PatientLevelPredictionStudy','PatientLevelPredictionValidationStudy',jsonSettings)
     
-    
-    createValidationPackage(modelFolder = outputFolder, 
-                            outputFolder = file.path(outputFolder, paste0(pn,'Validation')),
-                            minCellCount = minCellCount,
-                            databaseName = cdmDatabaseName,
-                            jsonSettings = jsonSettings,
-                            analysisIds = analysesToValidate)
+    ParallelLogger::logInfo('Creating validation package')
+    tryCatch({
+      
+      createValidationPackage(
+        devPackageName = 'MphSafetyPrediction',
+        devDatabaseName = databaseDetails$cdmDatabaseName,
+        analysisLocation = outputFolder,
+        analysisIds = analysesToValidate,
+        outputFolder = outputFolder,
+        validationPackageName = 'MphSafetyPredictionValidation',
+        description = 'validating models in MphSafetyPrediction',
+        createdBy = 'anonymous',
+        organizationName = 'none',
+        useHydra = useHydra,
+        skeletonVersion = skeletonVersion
+      )
+      
+    }, error = function(e){ParallelLogger::logError(e)})
   }
   
-  if (createShiny) {
-    populateShinyApp(outputDirectory = file.path(outputFolder, 'ShinyApp'),
-                     resultDirectory = outputFolder,
-                     minCellCount = minCellCount,
-                     databaseName = cdmDatabaseName)
+  if (viewShiny) {
+    PatientLevelPrediction::viewMultiplePlp(outputFolder)
   }
-  
-  if(createJournalDocument){
-    predictionAnalysisListFile <- system.file("settings",
-                                              "predictionAnalysisList.json",
-                                              package = "MphSafetyPredic")
-    jsonSettings <-  tryCatch({Hydra::loadSpecifications(file=predictionAnalysisListFile)},
-                              error=function(cond) {
-                                stop('Issue with json file...')
-                              })
-    pn <- jsonlite::fromJSON(jsonSettings)
-    createJournalDocument(resultDirectory = outputFolder,
-                                      analysisId = analysisIdDocument, 
-                                      includeValidation = T,
-                                      cohortIds = pn$cohortDefinitions$id,
-                                      cohortNames = pn$cohortDefinitions$name)
-  }
-  
   
   invisible(NULL)
 }
@@ -210,3 +299,21 @@ execute <- function(connectionDetails,
 
 
 
+getNames <- function(
+  cohortDefinitions, 
+  ids
+){
+  
+  idNames <- lapply(cohortDefinitions, function(x) c(x$id, x$name))
+  idNames <- do.call(rbind, idNames)
+  colnames(idNames) <- c('id', 'name')
+  idNames <- as.data.frame(idNames)
+  
+  nams <- c()
+  for(id in ids){
+    nams <- c(nams, idNames$name[idNames$id == id])
+  }
+  
+  return(nams)
+  
+}
