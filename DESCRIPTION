@@ -1,9 +1,9 @@
-Package: MphSafetyPredic
+Package: MphSafetyPrediction
 Type: Package
 Title: A Package Skeleton for Patient Level Prediction Studies
 Version: 0.0.1
-Author: Jenna Reps [aut, cre]
-Maintainer: Jenna M Reps <reps@ohdsi.org>
+Author: Dong Yun Lee, Chungsoo Kim [aut, cre]
+Maintainer: Dong Yun Lee <dongyun909@ajou.ac.kr>
 Description: A skeleton package, to be used as a starting point when implementing patient-level prediction studies.
 Depends:
     DatabaseConnector

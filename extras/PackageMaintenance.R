@@ -1,6 +1,6 @@
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
-# This file is part of SkeletonCompartiveEffectStudy
+# This file is part of MphSafetyPrediction
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,16 +16,27 @@
 
 # Format and check code ---------------------------------------------------
 OhdsiRTools::formatRFolder()
-OhdsiRTools::checkUsagePackage("MphSafetyPredic")
+OhdsiRTools::checkUsagePackage("MphSafetyPrediction")
 OhdsiRTools::updateCopyrightYearFolder()
 
 # Create manual -----------------------------------------------------------
-shell("rm extras/MphSafetyPredic.pdf")
-shell("R CMD Rd2pdf ./ --output=extras/MphSafetyPredic.pdf")
+shell("rm extras/MphSafetyPrediction.pdf")
+shell("R CMD Rd2pdf ./ --output=extras/MphSafetyPrediction.pdf")
 
 # Create vignette ---------------------------------------------------------
 rmarkdown::render("vignettes/UsingSkeletonPackage.Rmd",
                   output_file = "../inst/doc/UsingSkeletonPackage.pdf",
+                  rmarkdown::pdf_document(latex_engine = "pdflatex",
+                                          toc = TRUE,
+                                          number_sections = TRUE))
+rmarkdown::render("vignettes/AddingCohortCovariates.Rmd",
+                  output_file = "../inst/doc/AddingCohortCovariates.pdf",
+                  rmarkdown::pdf_document(latex_engine = "pdflatex",
+                                          toc = TRUE,
+                                          number_sections = TRUE))
+
+rmarkdown::render("vignettes/CreatingStudyPackageInR.Rmd",
+                  output_file = "../inst/doc/CreatingStudyPackageInR.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
@@ -37,11 +48,13 @@ OhdsiRTools::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv"
                                                 insertTableSql = TRUE,
                                                 insertCohortCreationR = TRUE,
                                                 generateStats = FALSE,
-                                                packageName = "MphSafetyPredic")
+                                                packageName = "MphSafetyPrediction")
 
 # Create analysis details -------------------------------------------------
+library(PatientLevelPrediction)
 source("extras/CreatePredictionAnalysisDetails.R")
 createAnalysesDetails("inst/settings")
 
 # Store environment in which the study was executed -----------------------
-OhdsiRTools::insertEnvironmentSnapshotInPackage("MphSafetyPredic")
+OhdsiRTools::insertEnvironmentSnapshotInPackage("MphSafetyPrediction")
+
