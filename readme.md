@@ -1,9 +1,20 @@
-A Package Skeleton for Patientl-Level Prediction Studies
+**MPHSafetyPrediction** 
+A Package for develop models for predicting ADEs in methylphenidate users
 ========================================================
 
-A skeleton package, to be used as a starting point when implementing patient-level prediction studies.
+<img src="https://img.shields.io/badge/Study%20Status-Design%20Finalized-brightgreen.svg" alt="Study Status: Design Finalized">
 
-Vignette: [Using the package skeleton for patient-level prediction studies](https://raw.githubusercontent.com/OHDSI/StudyProtocolSandbox/master/MphSafetyPredic/inst/doc/UsingSkeletonPackage.pdf)
+- Analytics use case(s): **Patient-level Prediction**
+- Study type: **Clinical Application**
+- Tags: **OHDSI**  
+
+- Study lead: **Dong Yun Lee**, **Chungsoo Kim**, **Yunmi Shin**, **Rae Woong Park**
+- Study lead forums tag: **[[Dong Yun Lee]](https://forums.ohdsi.org/u/dy_lee)**, **[[Chungsoo_Kim]](https://forums.ohdsi.org/u/Chungsoo_Kim)**,  **[[RWPark]](https://forums.ohdsi.org/u/rwpark)**
+- Study start date: **July 1, 2022**
+- Study end date: **-**
+- Protocol: **[[Protocol]](https://github.com/ABMI/MphSafetyPrediction/inst/doc/LargeScaleAdePrediction_v1_release.pdf)**
+- Publications: **-**
+- Results explorer: **-**
 
 Suggested Requirements
 ===================
@@ -28,14 +39,14 @@ Instructions To Run Package
 ===================
 - Execute the study by running the code in (extras/CodeToRun.R) :
 ```r
-  library(MphSafetyPredic)
-  # USER INPUTS
+library(MphSafetyPrediction)
+
+#=======================
+# USER INPUTS
 #=======================
 # The folder where the study intermediate and result files will be written:
-outputFolder <- "./MphSafetyPredicResults"
 
-# Specify where the temporary files (used by the ff package) will be created:
-options(fftempdir = "location with space to save big data")
+outputFolder <- "./MphSafetyPredictionResults"
 
 # Details for connecting to the server:
 dbms <- "you dbms"
@@ -60,23 +71,71 @@ cohortDatabaseSchema <- 'work database schema'
 oracleTempSchema <- NULL
 
 # table name where the cohorts will be generated
-cohortTable <- 'MphSafetyPredicCohort'
+cohortTable <- 'MphSafetyPredictionCohort'
+
+# here we specify the databaseDetails using the 
+# variables specified above
+databaseDetails <- PatientLevelPrediction::createDatabaseDetails(
+        connectionDetails = connectionDetails, 
+        cdmDatabaseSchema = cdmDatabaseSchema, 
+        cdmDatabaseName = cdmDatabaseName, 
+        tempEmulationSchema = tempEmulationSchema, 
+        cohortDatabaseSchema = cohortDatabaseSchema, 
+        cohortTable = cohortTable, 
+        outcomeDatabaseSchema = cohortDatabaseSchema,  
+        outcomeTable = cohortTable, 
+        cdmVersion = 5
+)
+
+# specify the level of logging 
+logSettings <- PatientLevelPrediction::createLogSettings(
+        verbosity = 'INFO', 
+        logName = 'MphSafetyPrediction'
+)
 #=======================
 
-execute(connectionDetails = connectionDetails,
-        cdmDatabaseSchema = cdmDatabaseSchema,
-		cdmDatabaseName = cdmDatabaseName,
-        cohortDatabaseSchema = cohortDatabaseSchema,
-        cohortTable = cohortTable,
-        oracleTempSchema = oracleTempSchema,
+#======================
+# PICK THINGS TO EXECUTE
+#=======================
+# want to generate a study protocol? Set below to TRUE
+createProtocol <- FALSE
+# want to generate the cohorts for the study? Set below to TRUE
+createCohorts <- TRUE
+# want to run a diagnoston on the prediction and explore results? Set below to TRUE
+runDiagnostic <- FALSE
+viewDiagnostic <- FALSE
+# want to run the prediction study? Set below to TRUE
+runAnalyses <- TRUE
+sampleSize <- NULL # edit this to the number to sample if needed
+# want to create a validation package with the developed models? Set below to TRUE
+createValidationPackage <- FALSE
+analysesToValidate = NULL
+# want to package the results ready to share? Set below to TRUE
+packageResults <- FALSE
+# pick the minimum count that will be displayed if creating the shiny app, the validation package, the 
+# diagnosis or packaging the results to share 
+minCellCount= 5
+# want to create a shiny app with the results to share online? Set below to TRUE
+createShiny <- FALSE
+
+
+#=======================
+
+MphSafetyPrediction::execute(
+        databaseDetails = databaseDetails,
         outputFolder = outputFolder,
-        createProtocol = F,
-        createCohorts = T,
-        runAnalyses = T,
-        createResultsDoc = F,
-        packageResults = F,
-        createValidationPackage = F,
-        minCellCount= 5)
+        createProtocol = createProtocol,
+        createCohorts = createCohorts,
+        runDiagnostic = runDiagnostic,
+        viewDiagnostic = viewDiagnostic,
+        runAnalyses = runAnalyses,
+        createValidationPackage = createValidationPackage,
+        analysesToValidate = analysesToValidate,
+        packageResults = packageResults,
+        minCellCount= minCellCount,
+        logSettings = logSettings,
+        sampleSize = sampleSize
+)
 ```
 
 The 'createCohorts' option will create the target and outcome cohorts into cohortDatabaseSchema.cohortTable if set to T.  The 'runAnalyses' option will create/extract the data for each prediction problem setting (each Analysis), develop a prediction model, internally validate it if set to T.  The results of each Analysis are saved in the 'outputFolder' directory under the subdirectories 'Analysis_1' to 'Analysis_N', where N is the total analyses specified.  After running execute with 'runAnalyses set to T, a 'Validation' subdirectory will be created in the 'outputFolder' directory where you can add the external validation results to make them viewable in the shiny app or journal document that can be automatically generated.
