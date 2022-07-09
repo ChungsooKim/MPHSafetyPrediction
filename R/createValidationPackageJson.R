@@ -52,16 +52,16 @@ createValidationPackage <- function(
   length(modelJson) <- length(results)
   
   for(i in 1:length(results)){
-    
-    modelJson[[i]] <- PatientLevelPrediction::loadPlpModel(
-      file.path(
-        analysisLocation,
-        results[i],
-        'plpResult',
-        'model'
+    if(file.exists(file.path(analysisLocation, results[[i]], 'plpResult'))){
+      modelJson[[i]] <- PatientLevelPrediction::loadPlpModel(
+        file.path(
+          analysisLocation,
+          results[i],
+          'plpResult',
+          'model'
+        )
       )
-    )
-    
+    }
   }
   #======
   
@@ -215,7 +215,7 @@ replaceName <- function(
   filesToEdit <- c(
     file.path(packageLocation,"DESCRIPTION"),
     file.path(packageLocation,"README.md"),
-    file.path(packageLocation,"extras/CodeToRun.R"
+    file.path(packageLocation,"extras/codeToRun.R"
     ),
     dir(file.path(packageLocation,"R"), full.names = T)
   )
@@ -258,7 +258,7 @@ saveCohorts <- function(
   # get the csv of cohorts from the development
   cohortDf <- utils::read.csv(
     system.file(
-      "Cohorts.csv",
+      "settings/CohortsToCreate.csv",
       package = developmentPackage
     )
   )
@@ -366,13 +366,15 @@ transportModelsToJson <- function(modelJson, packageLoc){
   lapply(
     1:length(modelJson), 
     function(i){
-      PatientLevelPrediction::savePlpModel(
-        plpModel = modelJson[[i]], 
-        dirPath = file.path(packageLoc, 'inst', 'models', modelJson[[i]]$trainDetails$analysisId)
-      )
+      if(!is.null(modelJson[[i]]$trainDetails$analysisId)){
+          PatientLevelPrediction::savePlpModel(
+            plpModel = modelJson[[i]], 
+            dirPath = file.path(packageLoc, 'inst', 'models', modelJson[[i]]$trainDetails$analysisId)
+          )
+      }
+      
     }
   )
-  
   return(invisible(NULL))
 }
 
