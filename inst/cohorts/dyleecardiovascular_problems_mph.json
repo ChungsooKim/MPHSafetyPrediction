@@ -236,6 +236,46 @@
       }]},
       "name": "[dylee]cardiomyopathy",
       "id": 4
+    },
+    {
+      "expression": {"items": [
+        {
+          "isExcluded": false,
+          "concept": {
+            "INVALID_REASON_CAPTION": "Valid",
+            "CONCEPT_ID": 316139,
+            "STANDARD_CONCEPT": "S",
+            "CONCEPT_CODE": "84114007",
+            "VOCABULARY_ID": "SNOMED",
+            "CONCEPT_NAME": "Heart failure",
+            "DOMAIN_ID": "Condition",
+            "STANDARD_CONCEPT_CAPTION": "Standard",
+            "CONCEPT_CLASS_ID": "Clinical Finding",
+            "INVALID_REASON": "V"
+          },
+          "includeMapped": false,
+          "includeDescendants": true
+        },
+        {
+          "isExcluded": false,
+          "concept": {
+            "INVALID_REASON_CAPTION": "Valid",
+            "CONCEPT_ID": 4215689,
+            "STANDARD_CONCEPT": "S",
+            "CONCEPT_CODE": "395105005",
+            "VOCABULARY_ID": "SNOMED",
+            "CONCEPT_NAME": "Heart failure confirmed",
+            "DOMAIN_ID": "Condition",
+            "STANDARD_CONCEPT_CAPTION": "Standard",
+            "CONCEPT_CLASS_ID": "Context-dependent",
+            "INVALID_REASON": "V"
+          },
+          "includeMapped": false,
+          "includeDescendants": true
+        }
+      ]},
+      "name": "Heart failure",
+      "id": 5
     }
   ],
   "EndStrategy": {"DateOffset": {
@@ -317,6 +357,22 @@
         "CorrelatedCriteria": null,
         "ConditionTypeExclude": false,
         "CodesetId": 4,
+        "ProviderSpecialty": null,
+        "Gender": null,
+        "VisitType": null,
+        "First": null,
+        "OccurrenceStartDate": null,
+        "ConditionType": null,
+        "ConditionSourceConcept": null,
+        "ConditionStatus": null,
+        "StopReason": null,
+        "Age": null
+      }},
+      {"ConditionOccurrence": {
+        "OccurrenceEndDate": null,
+        "CorrelatedCriteria": null,
+        "ConditionTypeExclude": false,
+        "CodesetId": 5,
         "ProviderSpecialty": null,
         "Gender": null,
         "VisitType": null,
