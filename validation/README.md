@@ -3,7 +3,7 @@ MphSafetyPredictionValidation
 
 Introduction
 ============
-This package contains code to externally validate models for the prediction quesiton <add question> developed on the database <add database>.
+This package contains code to externally validate models for the prediction quesiton <Can we predict adverse drug events from methylphenidate users?> developed on the database <add database>.
 
 Features
 ========
@@ -34,34 +34,9 @@ A general guide for running a valdiation study package is available here: [Skele
 A1. Installing the package from GitHub
 ===============
 ```r
-# first set up the environment using the lockfile:
-# If you don't have renv as an R library you need to install it:
-install.packages("renv")
-
-# renv will create an environemnt with all the R libraries and versions that
-# were used by the original study developer (this is handy if the study needs to be run 
-# in the future when new versions are available and may have different code that 
-# causes a study to break)
-
-# You need to specify a project folder for the renv (the study specific environment will be 
-# save here) and you need to set you R working direcory to this location before running renv
-projectFolder <- "C:/MphSafetyPredictionValidation"
-if(!dir.exists(projectFolder)){
-dir.create(projectFolder,   recursive = T)
-}
-setwd(projectFolder)
-                                                                                              
-# Download the lock file:
-download.file("https://raw.githubusercontent.com/ohdsi-studies/MphSafetyPredictionValidation/main/renv.lock", "renv.lock")
-
-# Build the local library into projectFolder (takes a while):
-renv::init()
-
-# (When not in RStudio, you'll need to restart R now)
-
 # To install the package from github:
 install.packages("devtools")
-devtools::install_github("ohdsi-studies/MphSafetyPredictionValidation")
+devtools::install_github("ted9219/MPHSafetyPrediction")
 ```
 
 A2. Building the package inside RStudio
@@ -72,7 +47,7 @@ A2. Building the package inside RStudio
 B. Getting Started
 ===============
   1. Make sure to have either: installed (A1) or built (A2) the package 
-  2. In R, run the code in 'extras/codeToRun.R' (see [Skeleton Validation Study guide](https://github.com/OHDSI/MphSafetyPredictionValidation/tree/main/inst/doc/UsingSkeletonValidationPackage.pdf) for guideance)
+  2. In R, run the code in 'extras/codeToRun.R' (see [Skeleton Validation Study guide](https://github.com/ted9219/MphSafetyPrediction/tree/main/validation/inst/doc/UsingSkeletonValidationPackage.pdf) for guideance)
 
 
 C. Example Code
@@ -103,6 +78,7 @@ cohortDatabaseSchema <- 'your cohort database schema'
 
 # if using oracle specify the temp schema
 oracleTempSchema <- NULL
+tempEmulationSchema <- NULL
 
 # Add a sharebale name for the database containing the OMOP CDM data
 databaseName <- 'your database name'
