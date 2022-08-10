@@ -42,7 +42,13 @@ devtools::install_github("ted9219/MPHSafetyPrediction")
 A2. Building the package inside RStudio
 ===============
   1. Open the validation package project file (file ending in .Rproj) 
-  2. Build the package in RStudio by selecting the 'Build' option in the top right (the tabs contain  'Environment', 'History', 'Connections', 'Build', 'Git') and then clicking on the 'Install and Restart'
+  2. Restore the dependency packages as follow
+  
+  ```r
+  install.packages("renv")
+  renv::restore() 
+  ```
+  3. Build the package in RStudio by selecting the 'Build' option in the top right (the tabs contain  'Environment', 'History', 'Connections', 'Build', 'Git') and then clicking on the 'Install and Restart'
 
 B. Getting Started
 ===============
