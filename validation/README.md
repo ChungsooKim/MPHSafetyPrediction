@@ -92,10 +92,10 @@ cohortTable <- 'MphSafetyPredictionValidationCohort'
 verbosity <- "INFO"
 
 # create the cohorts using the sql in the package?
-createCohorts = T
+createCohorts = T # If you already created the cohorts, please change to FALSE.
 
 # apply the models in the package to your data?
-runValidation = F
+runValidation = T
 # if you only want to apply models to a sample of
 # patients put the number as the sampleSize
 sampleSize = NULL
