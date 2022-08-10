@@ -11,7 +11,7 @@
 - Study lead forums tag: **[[Dong Yun Lee]](https://forums.ohdsi.org/u/dy_lee)**, **[[Chungsoo_Kim]](https://forums.ohdsi.org/u/Chungsoo_Kim)**,  **[[RWPark]](https://forums.ohdsi.org/u/rwpark)**
 - Study start date: **July 1, 2022**
 - Study end date: **-**
-- Protocol: **[[Protocol]](https://github.com/ABMI/MphSafetyPrediction/inst/doc/LargeScaleAdePrediction_v1_release.pdf)**
+- Protocol: **[[Protocol]](https://github.com/ted9219/MphSafetyPrediction/development/inst/doc/LargeScaleAdePrediction_v1_release.pdf)**
 - Publications: **-**
 - Results explorer: **-**
 
