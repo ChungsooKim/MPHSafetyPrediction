@@ -53,7 +53,7 @@ A2. Building the package inside RStudio
 
 B. Getting Started
 ===============
-  1. Make sure to have either: installed (A1) or built (A2) the package 
+  1. Make sure to have both: download (A1) and built (A2) the package 
   2. In R, run the code in 'extras/codeToRun.R' (see [Skeleton Validation Study guide](https://github.com/ted9219/MphSafetyPrediction/tree/main/validation/inst/doc/UsingSkeletonValidationPackage.pdf) for guideance)
 
 
