@@ -33,8 +33,7 @@ A general guide for running a valdiation study package is available here: [Skele
   
 A1. Installing the package from GitHub
 ===============
-# To download the package from github or you can use below codes in your terminal (git required).
-
+  1. To download the package from github or you can use below codes in your terminal (git required).
 ```cmd
 # in you terminal
 git clone https://github.com/ted9219/MphSafetyPrediction
