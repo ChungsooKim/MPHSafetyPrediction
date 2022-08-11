@@ -19,7 +19,7 @@ System Requirements
 ===================
   * Requires: OMOP CDM database and connection details
   * Requires: Java runtime enviroment (for the database connection)
-  * Requires: R (version 3.3.0 or higher).
+  * Requires: R (version 4.0.0 or higher).
   * Sometimes required: Python 
 
 Dependencies
@@ -33,18 +33,20 @@ A general guide for running a valdiation study package is available here: [Skele
   
 A1. Installing the package from GitHub
 ===============
-```r
-# To install the package from github:
-install.packages("devtools")
-devtools::install_github("ted9219/MPHSafetyPrediction")
+# To download the package from github or you can use below codes in your terminal (git required).
+
+```cmd
+# in you terminal
+git clone https://github.com/ted9219/MphSafetyPrediction
 ```
 
 A2. Building the package inside RStudio
 ===============
-  1. Open the validation package project file (file ending in .Rproj) 
+  1. Open the MPHSafetyPredictionValidation package project file in validation folder (file ending in .Rproj) 
   2. Restore the dependency packages as follow
   
   ```r
+  # install renv package. you can skip the installation if you already have installed it. 
   install.packages("renv")
   renv::restore() 
   ```
@@ -155,6 +157,10 @@ MphSafetyPredictionValidation::execute(
 )
                  
 ```
+
+D.Result sharing
+===============
+  1. After you finished, please send the results zip file to dongyun90@ajou.ac.kr/ted9219@ajou.ac.kr
 
 License
 =======
