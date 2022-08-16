@@ -19,7 +19,8 @@ System Requirements
 ===================
   * Requires: OMOP CDM database and connection details
   * Requires: Java runtime enviroment (for the database connection)
-  * Requires: R (version 4.0.0 or higher).
+  * Requires: R (version 4.0.0 or higher)
+  * Requires: [Git Large File Storage](https://git-lfs.github.com/)
   * Sometimes required: Python 
 
 Dependencies
@@ -29,12 +30,28 @@ Dependencies
 Guide
 ============
 A general guide for running a valdiation study package is available here: [Skeleton Validation Study guide](https://github.com/OHDSI/MphSafetyPredictionValidation/tree/main/inst/doc/UsingSkeletonValidationPackage.pdf)
+
+A0. Installing git LFS (large file storage)
+===============
+  1. This package has several prediction models for validation, those exceed the storage policy of git repository. Therefore, we are using git LFS for upload/download large models. 
+  2. Please install git-lfs according to your OS
   
+  A) Linux
+```r
+sudo apt install git-lfs
+```
+  B) Mac
+```r
+brew install git-lfs
+```
+  C) Windows
+   
+    Please download the git lfs in the official webpage (https://git-lfs.github.com)
   
 A1. Installing the package from GitHub
 ===============
   1. To download the package from github or you can use below codes in your terminal (git required).
-```cmd
+```r
 # in you terminal
 git clone https://github.com/ted9219/MphSafetyPrediction
 ```
