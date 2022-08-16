@@ -34,7 +34,8 @@ A general guide for running a valdiation study package is available here: [Skele
 A0. Installing git LFS (large file storage)
 ===============
   1. This package has several prediction models for validation, those exceed the storage policy of git repository. Therefore, we are using git LFS for upload/download large models. 
-  2. Please install git-lfs according to your OS.
+  2. Please install git-lfs according to your OS
+  
   A) Linux
 ```r
 sudo apt install git-lfs
