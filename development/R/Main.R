@@ -162,14 +162,14 @@ execute <- function(
     
     # add code to add database settings for covariates...
     #[TODO]
-    for(i in 1:length(predictionAnalysisList$analyses)){
-      ParallelLogger::logInfo('Updating as cohort covariate settings is being used')
-      predictionAnalysisList$analyses[[i]]$covariateSettings <- addCohortSettings(
-        covariateSettings = predictionAnalysisList$analyses[[i]]$covariateSettings, 
-        cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema, 
-        cohortTable = databaseDetails$cohortTable
-      )
-    }
+    # for(i in 1:length(predictionAnalysisList$analyses)){
+    #   ParallelLogger::logInfo('Updating as cohort covariate settings is being used')
+    #   predictionAnalysisList$analyses[[i]]$covariateSettings <- addCohortSettings(
+    #     covariateSettings = predictionAnalysisList$analyses[[i]]$covariateSettings, 
+    #     cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema, 
+    #     cohortTable = databaseDetails$cohortTable
+    #   )
+    # }
     
     result <- do.call(
       PatientLevelPrediction::runMultiplePlp, 
@@ -178,7 +178,7 @@ execute <- function(
         databaseDetails = databaseDetails,
         modelDesignList = predictionAnalysisList$analyses,
         onlyFetchData =  onlyFetchData || (runDiagnostic && !runAnalyses),
-        splitSettings = predictionAnalysisList$splitSettings,
+        # splitSettings = predictionAnalysisList$splitSettings,
         cohortDefinitions = predictionAnalysisList$cohortDefinitions,
         logSettings = logSettings,
         saveDirectory = outputFolder

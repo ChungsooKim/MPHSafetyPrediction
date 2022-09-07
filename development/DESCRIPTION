@@ -6,7 +6,9 @@ Author: Dong Yun Lee, Chungsoo Kim [aut, cre]
 Maintainer: Dong Yun Lee <dongyun909@ajou.ac.kr>
 Description: A skeleton package, to be used as a starting point when implementing patient-level prediction studies.
 Depends:
-    DatabaseConnector
+    DatabaseConnector,
+    PatientLevelPrediction,
+    DeepPatientLevelPrediction
 Imports:
     SqlRender,
     Cyclops,
