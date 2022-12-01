@@ -178,7 +178,6 @@ execute <- function(
         databaseDetails = databaseDetails,
         modelDesignList = predictionAnalysisList$analyses,
         onlyFetchData =  onlyFetchData || (runDiagnostic && !runAnalyses),
-        splitSettings = predictionAnalysisList$splitSettings,
         cohortDefinitions = predictionAnalysisList$cohortDefinitions,
         logSettings = logSettings,
         saveDirectory = outputFolder
