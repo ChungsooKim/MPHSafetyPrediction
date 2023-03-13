@@ -14,3 +14,5 @@ cohortId,atlasId,cohortName
 1741,1741,dylee_MPH_prediction_adult
 1742,1742,dylee_MPH_prediction_female
 1743,1743,dylee_MPH_prediction_male
+1744,1744,dylee_depression_mph
+1746,1746,dylee_anxiety_disorder_mph

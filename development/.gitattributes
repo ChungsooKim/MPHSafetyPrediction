@@ -1,0 +1,2 @@
+/home/ted9219/synology/ted9219/21ho/ted9219/MphSafetyPrediction/development/inst/settings/predictionAnalysisList.json filter=lfs diff=lfs merge=lfs -text
+/home/ted9219/synology/ted9219/21ho/ted9219/MphSafetyPrediction/development/inst/settings/predictionAnalysisList_archive.json filter=lfs diff=lfs merge=lfs -text
